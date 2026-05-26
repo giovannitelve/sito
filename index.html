@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<!-- saved from url=(0045)index_9.html -->
+<html lang="it"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Giovanni Telve</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #ffffff; --ink: #111111; --muted: #888888;
+      --faint: #e8e8e8; --fs-nav: 13px; --fs-list: 13px;
+      --fs-meta: 12px; --fs-body: 14px;
+    }
+    html { scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none; }
+    html::-webkit-scrollbar { display: none; }
+    body {
+      background: var(--bg); color: var(--ink);
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: var(--fs-body); line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      cursor: url('cursore.svg') 8 8, auto;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* NAV */
+    header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+      background: #fff; border-bottom: 1px solid var(--faint);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; height: 44px;
+    }
+    .logo { font-size: var(--fs-nav); font-weight: 400; letter-spacing: 0.01em; cursor: pointer; transition: color .15s; }
+    .logo:hover { color: var(--muted); }
+    
+    /* LAYOUT */
+    .page { padding-top: 44px; display: flex; min-height: 100vh; }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 220px; flex-shrink: 0;
+      border-right: 1px solid var(--faint);
+      position: sticky; top: 44px;
+      height: calc(100vh - 44px); overflow-y: auto;
+      padding: 20px 0;
+      
+      /* Nasconde la barra di scorrimento mantenendo lo scroll */
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+    .sidebar::-webkit-scrollbar {
+      display: none; /* Chrome, Safari and Opera */
+    }
+    
+    .filter-section { padding: 0 20px 16px; }
+    .filter-section + .filter-section { border-top: 1px solid var(--faint); padding-top: 16px; }
+    .filter-title {
+      font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 10px;
+    }
+    .filter-opts { display: flex; flex-direction: column; gap: 1px; }
+    .filter-opt {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 5px 8px; font-size: var(--fs-meta);
+      cursor: pointer; border-radius: 2px; transition: background .12s, font-weight .12s; user-select: none;
+    }
+    .filter-opt:hover { background: #f5f5f5; }
+    
+    /* STILE FILTRO ATTIVO: Solo grassetto, nessuno sfondo nero */
+    .filter-opt.active { font-weight: 700; color: var(--ink); background: transparent; }
+    
+    .opt-count { font-size: 10px; color: var(--muted); font-weight: 400; } /* Mantiene il numeretto regolare anche se il testo è bold */
+
+    /* MAIN */
+    .main { flex: 1; min-width: 0; }
+
+    /* LIST VIEW */
+    #list-view { display: block; }
+    .list-toolbar {
+      padding: 10px 24px;
+      border-bottom: 1px solid var(--faint);
+      display: flex; align-items: center; justify-content: flex-end;
+      position: sticky; top: 44px; background: #fff; z-index: 10;
+    }
+    .view-toggle { display: flex; gap: 6px; }
+    .view-btn {
+      width: 28px; height: 28px; border: 1px solid var(--faint);
+      background: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      padding: 0; border-radius: 2px; transition: background .12s, border-color .12s;
+    }
+    .view-btn.active { background: var(--ink); border-color: var(--ink); }
+    .view-btn svg { width: 13px; height: 13px; color: var(--muted); }
+    .view-btn.active svg { color: #fff; }
+
+    /* List */
+    .projects-list { display: flex; flex-direction: column; }
+    .proj-item {
+      display: grid;
+      grid-template-columns: minmax(max-content, 300px) minmax(max-content, 180px) 1fr max-content 60px;
+      gap: 16px; 
+      align-items: flex-start;
+      padding: 13px 24px;
+      border-bottom: 1px solid var(--faint);
+      cursor: pointer; transition: background .1s;
+    }
+    .proj-item:hover { background: #f9f9f9; }
+    .pi-name {
+      font-size: var(--fs-list);
+      line-height: 1.4;
+      white-space: nowrap;
+    }
+    .pi-num { font-weight: 400; color: var(--muted); margin-right: 4px; font-variant-numeric: tabular-nums; letter-spacing: 0; font-family: 'Times New Roman', Times, serif; font-size: 14px; }
+    .pi-title { font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+    .pi-collab { font-size: 14px; color: var(--muted); font-family: 'Times New Roman', Times, serif; font-weight: 400; text-transform: none; letter-spacing: 0; }
+
+    .pi-type { font-size: var(--fs-meta); color: var(--muted); line-height: 1.4; white-space: nowrap; font-family: 'Times New Roman', Times, serif; font-size: 14px; }
+    .pi-extra { font-size: var(--fs-meta); color: var(--muted); line-height: 1.4; font-family: 'Times New Roman', Times, serif; font-size: 14px; }
+    .pi-year { font-size: var(--fs-meta); color: var(--muted); text-align: right; line-height: 1.4; white-space: nowrap; font-family: 'Times New Roman', Times, serif; font-size: 14px; }
+    .pi-status { 
+      font-size: var(--fs-meta); 
+      text-align: left; 
+      line-height: 1.4; 
+      color: var(--muted);
+      white-space: nowrap;
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 14px;
+    }
+
+    /* HOVER PREVIEW - BOX FLUTTUANTE */
+    #hover-preview {
+      display: none;
+      position: fixed;
+      pointer-events: none;
+      z-index: 9999;
+      width: 340px;
+      aspect-ratio: 4/3;
+      background: var(--faint);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    #hover-preview img {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+
+    /* Grid */
+    .projects-grid { display: none; grid-template-columns: repeat(3,1fr); }
+    @media (max-width:900px) { .projects-grid { grid-template-columns: repeat(2,1fr); } }
+    .pg-item { border-bottom: 1px solid var(--faint); border-right: 1px solid var(--faint); cursor: pointer; transition: opacity .15s; }
+    .pg-item:hover { opacity: .75; }
+    .pg-thumb {
+      aspect-ratio: 4/3; background: #f0f0f0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--muted); overflow: hidden;
+    }
+    .pg-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .pg-info { padding: 12px 16px 16px; }
+    .pg-name { font-size: var(--fs-meta); font-weight: 500; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 3px; }
+    .pg-sub { font-size: 11px; color: var(--muted); }
+
+    /* DETAIL VIEW */
+    #detail-view { display: none; }
+    .detail-back {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: var(--fs-meta); color: var(--muted);
+      padding: 12px 24px; border-bottom: 1px solid var(--faint);
+      cursor: pointer; transition: color .15s;
+      background: #fff; position: relative; z-index: 6;
+    }
+    .detail-back:hover { color: var(--ink); }
+    .detail-back svg { width: 13px; height: 13px; }
+
+    /* LAYOUT: SCHERMO DIVISO IN DUE CLICCABILE */
+    .schermo-diviso {
+      display: flex; height: calc(100vh - 44px - 38px); width: 100%;
+      border-bottom: 1px solid var(--faint);
+    }
+    .meta-sinistra, .meta-destra {
+      flex: 1; overflow: hidden; background: #ffffff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; color: var(--muted); letter-spacing: .1em; text-transform: uppercase;
+      cursor: pointer; user-select: none;
+      position: relative;
+    }
+    .meta-sinistra { border-right: none; }
+    .meta-sinistra img, .meta-destra img {
+      width: 100%; height: 100%; object-fit: contain; display: block;
+    }
+    .img-counter {
+      position: absolute; bottom: 14px; right: 16px;
+      font-size: 10px; letter-spacing: .08em; color: var(--muted);
+      pointer-events: none;
+    }
+
+    /* DETTAGLIO TESTO E META */
+    .detail-body { display: grid; grid-template-columns: 1fr 260px; gap: 0; }
+    .detail-text { padding: 28px 48px 48px; border-right: 1px solid var(--faint); }
+    .detail-title {
+      font-size: 18px; font-weight: 500; text-transform: uppercase; letter-spacing: .04em;
+      line-height: 1.2; margin-bottom: 28px;
+    }
+    .detail-description { font-size: var(--fs-body); line-height: 1.8; color: #333; max-width: 600px; margin-bottom: 0; }
+
+    .detail-meta { padding: 28px 28px; }
+    .meta-row { padding: 9px 0; border-bottom: 1px solid var(--faint); }
+    .meta-row:first-child { padding-top: 0; }
+    .meta-key { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+    .meta-val { font-size: var(--fs-meta); line-height: 1.6; }
+    .meta-collab { padding-top: 20px; font-size: var(--fs-meta); color: var(--muted); line-height: 1.8; }
+
+    .meta-award {
+      display: inline-block; margin-top: 12px;
+      font-size: 10px; letter-spacing: .08em; text-transform: uppercase;
+      color: #8a6010; border: 1px solid #c8a840; padding: 3px 8px;
+    }
+
+    .detail-nav { display: flex; justify-content: space-between; padding: 16px 24px; border-top: 1px solid var(--faint); }
+    .detail-nav-btn { display: flex; align-items: center; gap: 8px; font-size: var(--fs-meta); color: var(--muted); cursor: pointer; transition: color .15s; }
+    .detail-nav-btn:hover { color: var(--ink); }
+    .detail-nav-btn svg { width: 13px; height: 13px; }
+
+    /* PAGINA PROFILO (Unita ai Contatti) */
+    .static-page {
+      display: none; padding: 64px 48px; max-width: 800px; margin: 0 auto;
+    }
+    
+    .cv-bio { margin-bottom: 32px; }
+    .cv-bio p { font-size: var(--fs-body); line-height: 1.8; color: #333; margin-bottom: 16px; font-family: 'Times New Roman', Times, serif; font-size: 15px; }
+    
+    .contact-list { display: flex; flex-direction: column; gap: 16px; margin-bottom: 64px; }
+    .contact-link { font-size: 16px; transition: color .15s; display: inline-block; }
+    .contact-link:hover { color: var(--muted); }
+    .contact-label { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 2px; }
+
+    .cv-section-title {
+      font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--muted); margin-top: 48px; margin-bottom: 24px;
+      border-bottom: 1px solid var(--faint); padding-bottom: 8px;
+    }
+    .cv-item {
+      display: grid; grid-template-columns: 150px 1fr; gap: 24px; margin-bottom: 24px;
+    }
+    .cv-date { font-size: var(--fs-meta); color: var(--muted); line-height: 1.5; }
+    .cv-content { font-size: var(--fs-body); line-height: 1.5; }
+    .cv-content strong { font-weight: 600; display: block; margin-bottom: 4px; }
+    .cv-desc { display: block; font-size: var(--fs-meta); color: var(--muted); margin-top: 6px; }
+
+    /* MOBILE E RESPONSIVE */
+    @media (max-width:720px) {
+
+      /* LAYOUT GENERALE */
+      .sidebar { display: none !important; }
+      #hover-preview { display: none !important; }
+
+      /* HEADER */
+      header { padding: 0 16px; }
+
+      /* TOOLBAR LISTA */
+      .list-toolbar { padding: 10px 16px; }
+
+      /* LISTA PROGETTI: nome + anno su una riga, luogo sotto */
+      .proj-item {
+        grid-template-columns: 1fr auto;
+        grid-template-rows: auto auto;
+        gap: 2px 8px;
+        padding: 12px 16px;
+        align-items: start;
+      }
+      .proj-item .pi-name  { grid-column: 1; grid-row: 1; white-space: normal; }
+      .proj-item .pi-year  { grid-column: 2; grid-row: 1; text-align: right; align-self: start; }
+      .proj-item .pi-extra { grid-column: 1; grid-row: 2; display: block; font-size: 11px; }
+      .proj-item .pi-type,
+      .proj-item .pi-status { display: none; }
+
+      /* GRIGLIA */
+      .projects-grid { grid-template-columns: repeat(2,1fr); }
+
+      /* SCHERMO DIVISO: stack verticale */
+      .schermo-diviso { flex-direction: column; height: auto; }
+      .meta-sinistra, .meta-destra {
+        width: 100%;
+        height: 52vw;
+        min-height: 180px;
+      }
+      .meta-sinistra { border-right: none; border-bottom: 1px solid var(--faint); }
+
+      /* BARRA BACK E NAV */
+      .detail-back { padding: 10px 16px; font-size: 11px; }
+      .detail-nav  { padding: 14px 16px; }
+
+      /* CORPO DETTAGLIO */
+      .detail-body { grid-template-columns: 1fr; }
+      .detail-text {
+        border-right: none;
+        border-bottom: 1px solid var(--faint);
+        padding: 20px 16px 28px;
+      }
+      .detail-title { font-size: 15px; margin-bottom: 20px; }
+      .detail-description { font-size: 13px; line-height: 1.7; max-width: 100%; }
+      .detail-meta { padding: 20px 16px; }
+      .meta-key { font-size: 9px; }
+      .meta-val, .meta-collab { font-size: 12px; }
+
+      /* PAGINA STATICA */
+      .static-page { padding: 28px 16px; }
+      .cv-item { grid-template-columns: 1fr; gap: 4px; margin-bottom: 28px; }
+      .cv-date { font-size: 11px; }
+      .contact-link { font-size: 14px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="index_9.html#" onclick="toggleMain(); return false;">Giovanni Telve</a>
+</header>
+
+<div id="hover-preview" style="display: block; left: 1014px; top: 288px;"><img src="immagini/08-urbansoil/08-urbansoil-anteprima.jpg" alt="Anteprima"></div>
+
+<div class="page">
+  <aside class="sidebar">
+    <div class="filter-section">
+      <div class="filter-title">Stato</div>
+      <div class="filter-opts" id="filter-status">
+        <div class="filter-opt" data-val="realizzato">Realizzati <span class="opt-count" id="cnt-realizzato">4</span></div>
+        <div class="filter-opt" data-val="concorso">Concorsi <span class="opt-count" id="cnt-concorso">3</span></div>
+        <div class="filter-opt" data-val="universitario">Universitari <span class="opt-count" id="cnt-universitario">8</span></div>
+        <div class="filter-opt" data-val="workshop">Workshop <span class="opt-count" id="cnt-workshop">6</span></div>
+      </div>
+    </div>
+    <div class="filter-section">
+      <div class="filter-title">Categoria</div>
+      <div class="filter-opts" id="filter-category">
+        <div class="filter-opt" data-val="edifici">Edifici <span class="opt-count" id="cnt-edifici">0</span></div>
+        <div class="filter-opt" data-val="oggetti">Oggetti <span class="opt-count" id="cnt-oggetti">0</span></div>
+      </div>
+    </div>
+    <div class="filter-section">
+      <div class="filter-title">Anno</div>
+      <div class="filter-opts" id="filter-year">
+        <div class="filter-opt" data-val="2026">2026 <span class="opt-count" id="cnt-2026">0</span></div>
+        <div class="filter-opt" data-val="2025">2025 <span class="opt-count" id="cnt-2025">0</span></div>
+        <div class="filter-opt" data-val="2024">2024 <span class="opt-count" id="cnt-2024">0</span></div>
+        <div class="filter-opt" data-val="2023">2023 <span class="opt-count" id="cnt-2023">0</span></div>
+        <div class="filter-opt" data-val="2022">2022 <span class="opt-count" id="cnt-2022">0</span></div>
+        <div class="filter-opt" data-val="2021">2021 <span class="opt-count" id="cnt-2021">0</span></div>
+        <div class="filter-opt" data-val="2020">2020 <span class="opt-count" id="cnt-2020">0</span></div>
+      </div>
+    </div>
+    <div class="filter-section">
+      <div class="filter-title">Collaborazione</div>
+      <div class="filter-opts" id="filter-gruppo">
+        <div class="filter-opt" data-val="personale">Personali <span class="opt-count" id="cnt-personale">8</span></div>
+        <div class="filter-opt" data-val="gruppo">Di gruppo <span class="opt-count" id="cnt-gruppo">10</span></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    
+    <div id="list-view" style="display: block;">
+      <div class="list-toolbar">
+        <span style="font-size:var(--fs-nav);letter-spacing:0.01em;flex:1;">Progetti</span>
+        <div class="view-toggle">
+          <button class="view-btn active" id="btn-list" title="Lista" onclick="setView(&#39;list&#39;)">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+              <line x1="1" y1="3" x2="13" y2="3"></line><line x1="1" y1="7" x2="13" y2="7"></line><line x1="1" y1="11" x2="13" y2="11"></line>
+            </svg>
+          </button>
+          <button class="view-btn" id="btn-grid" title="Griglia" onclick="setView(&#39;grid&#39;)">
+            <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="1" y="1" width="5" height="5"></rect><rect x="8" y="1" width="5" height="5"></rect>
+              <rect x="1" y="8" width="5" height="5"></rect><rect x="8" y="8" width="5" height="5"></rect>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div class="projects-list" id="projects-list" style="display: flex;"><div class="proj-item">
+      <div class="pi-name">
+        <span class="pi-num">18.</span> 
+        <span class="pi-title">Fermacarta</span>
+      </div>
+      <div class="pi-type">padiglione</div>
+      <div class="pi-extra">Fermignano (PU)</div>
+      <div class="pi-status" title="" style="">concorso</div>
+      <div class="pi-year">2026</div>
+    </div><div class="proj-item">
+      <div class="pi-name">
+        <span class="pi-num">17.</span> 
+        <span class="pi-title">Rondò</span>
+      </div>
+      <div class="pi-type">spazio pubblico</div>
+      <div class="pi-extra">Piedimonte San Germano (FR)</div>
+      <div class="pi-status" title="" style="">concorso</div>
+      <div class="pi-year">2026</div>
+    </div><div class="proj-item">
+      <div class="pi-name">
+        <span class="pi-num">16.</span> 
+        <span class="pi-title">Riabitare il Tuscolano</span>
+      </div>
+      <div class="pi-type">residenziale</div>
+      <div class="pi-extra">Roma</div>
+      <div class="pi-status" title="" style="">universitario</div>
+      <div class="pi-year">2025</div>
+    </div><div class="proj-item">
+      <div class="pi-name">
+        <span class="pi-num">15.</span> 
+        <span class="pi-title">Alle müssen wohnen</span>
+      </div>
+      <div class="pi-type">residenziale</div>
+      <div class="pi-extra">Monaco di Baviera</div>
+      <div class="pi-status" title="" style="">universitario</div>
+      <div class="pi-year">2025</div>
+    </div><div class="proj-item">
+      <div class="pi-name">
+        <span class="pi-num">14.</span> 
+        <span class="pi-title">Carretto espositivo</span>
+      </div>
+      <div class="pi-type">allestimento</div>
+      <div class="pi-extra">Nicosia, Cipro</div>
+      <div class="pi-status" title="" style="">workshop</div>
+      <div class="pi-year">2025</div>
+    </div><div class="proj-item">
+      <div class="pi-name">
+        <span class="pi-num">13.</span> 
+        <span class="pi-title">Quartaccio revamp</span>
+      </div>
+      <div class="pi-type">residenziale</div>
+      <div class="pi-extra">Quartaccio, Roma</div>
+      <div class="pi-status" title="" style="">universitario</div>
+      <div class="pi-year">2024</div>
+    </div><div class="proj-item">
+      <div class="pi-name">
+        <span class="pi-num">12.</span> 
+        <span class="pi-title">Estensione scala</span>
+      </div>
+      <div class="pi-type">interni</div>
+      <div class="pi-extra">Roma</div>
+      <div class="pi-status" title="" style="">progetto personale</div>
+      <div class="pi-year">2024</div>
+    </div><div class="proj-item">
+      <div class="pi-name">
+        <span class="pi-num">11.</span> 
+        <span class="pi-title">The Treasure Map</span>
+      </div>
+      <div class="pi-type">padiglione</div>
+      <div class="pi-extra">Benidorm, Spagna</div>
+      <div class="pi-status" title="" style="">workshop</div>
+      <div class="pi-year">2024</div>
+    </div><div class="proj-item">
+      <div class="pi-name">
+        <span class="pi-num">10.</span> 
+        <span class="pi-title">Ongrowing pavillion</span>
+      </div>
+      <div class="pi-type">padiglione</div>
+      <div class="pi-extra">Monaco di Baviera</div>
+      <div class="pi-status" title="" style="">universitario</div>
+      <div class="pi-year">2024</div>
+    </div><div class="proj-item">
+      <div class="pi-name">
+        <span class="pi-num">09.</span> 
+        <span class="pi-title">Pavillion Landesgartenschau</span>
+      </div>
+      <div class="pi-type">padiglione</div>
+      <div class="pi-extra">Monaco di Baviera</div>
+      <div class="pi-status" title="" style="">workshop</div>
+      <div class="pi-year">2023</div>
+    </div><div class="proj-item">
+      <div class="pi-name">
+        <span class="pi-num">08.</span> 
+        <span class="pi-title">Living with urban soil</span>
+      </div>
+      <div class="pi-type">padiglione</div>
+      <div class="pi-extra">Monaco di Baviera</div>
+      <div class="pi-status" title="" style="">workshop</div>
+      <div class="pi-year">2023</div>
+    </div><div class="proj-item">
+      <div class="pi-name">
+        <span class="pi-num">07.</span> 
+        <span class="pi-title">C_entro</span>
+      </div>
+      <div class="pi-type">allestimento</div>
+      <div class="pi-extra">Borgo di Santo Pietro, Caltagirone (CT)</div>
+      <div class="pi-status" title="" style="">workshop</div>
+      <div class="pi-year">2023</div>
+    </div><div class="proj-item">
+      <div class="pi-name">
+        <span class="pi-num">06.</span> 
+        <span class="pi-title">Rimboom</span>
+      </div>
+      <div class="pi-type">spazio pubblico</div>
+      <div class="pi-extra">Rimbo, Svezia</div>
+      <div class="pi-status" title="" style="">concorso</div>
+      <div class="pi-year">2023</div>
+    </div><div class="proj-item">
+      <div class="pi-name">
+        <span class="pi-num">05.</span> 
+        <span class="pi-title">Centro di ricerca</span>
+      </div>
+      <div class="pi-type">esposizione + residenziale</div>
+      <div class="pi-extra">Siracusa</div>
+      <div class="pi-status" title="" style="">universitario</div>
+      <div class="pi-year">2023</div>
+    </div><div class="proj-item">
+      <div class="pi-name">
+        <span class="pi-num">04.</span> 
+        <span class="pi-title">Akaflieg Student Halle</span>
+      </div>
+      <div class="pi-type">spazio pubblico</div>
+      <div class="pi-extra">Darmstadt, Germania</div>
+      <div class="pi-status" title="" style="">universitario</div>
+      <div class="pi-year">2022</div>
+    </div><div class="proj-item">
+      <div class="pi-name">
+        <span class="pi-num">03.</span> 
+        <span class="pi-title">Il sistema delle piazze</span>
+      </div>
+      <div class="pi-type">spazio pubblico</div>
+      <div class="pi-extra">Oriolo Romano (VT)</div>
+      <div class="pi-status" title="" style="">workshop</div>
+      <div class="pi-year">2022</div>
+    </div><div class="proj-item">
+      <div class="pi-name">
+        <span class="pi-num">02.</span> 
+        <span class="pi-title">Spazio culturale rionale</span>
+      </div>
+      <div class="pi-type">esposizione + spazio pubblico</div>
+      <div class="pi-extra">Roma</div>
+      <div class="pi-status" title="" style="">universitario</div>
+      <div class="pi-year">2021</div>
+    </div><div class="proj-item">
+      <div class="pi-name">
+        <span class="pi-num">01.</span> 
+        <span class="pi-title">Social housing Quadraro</span>
+      </div>
+      <div class="pi-type">residenziale</div>
+      <div class="pi-extra">Roma</div>
+      <div class="pi-status" title="" style="">universitario</div>
+      <div class="pi-year">2020</div>
+    </div></div>
+      <div class="projects-grid" id="projects-grid" style="display: none;"><div class="pg-item">
+      <div class="pg-thumb"><img src="immagini/18-fermacarta/18-fermacarta-anteprima.jpg" alt="Fermacarta"></div>
+      <div class="pg-info">
+        <div class="pg-name">18. Fermacarta</div>
+        <div class="pg-sub">padiglione · 2026</div>
+      </div>
+    </div><div class="pg-item">
+      <div class="pg-thumb"><img src="immagini/17-rondo/17-rondo-anteprima.jpg" alt="Rondò"></div>
+      <div class="pg-info">
+        <div class="pg-name">17. Rondò</div>
+        <div class="pg-sub">spazio pubblico · 2026</div>
+      </div>
+    </div><div class="pg-item">
+      <div class="pg-thumb"><img src="immagini/16-tuscolano/16-tuscolano-anteprima.jpg" alt="Riabitare il Tuscolano"></div>
+      <div class="pg-info">
+        <div class="pg-name">16. Riabitare il Tuscolano</div>
+        <div class="pg-sub">residenziale · 2025</div>
+      </div>
+    </div><div class="pg-item">
+      <div class="pg-thumb"><img src="immagini/15-wohnen/15-wohnen-anteprima.jpg" alt="Alle müssen wohnen"></div>
+      <div class="pg-info">
+        <div class="pg-name">15. Alle müssen wohnen</div>
+        <div class="pg-sub">residenziale · 2025</div>
+      </div>
+    </div><div class="pg-item">
+      <div class="pg-thumb"><img src="immagini/14-carretto/14-carretto-anteprima.jpg" alt="Carretto espositivo"></div>
+      <div class="pg-info">
+        <div class="pg-name">14. Carretto espositivo</div>
+        <div class="pg-sub">allestimento · 2025</div>
+      </div>
+    </div><div class="pg-item">
+      <div class="pg-thumb"><img src="immagini/13-quartaccio/13-quartaccio-anteprima.jpg" alt="Quartaccio revamp"></div>
+      <div class="pg-info">
+        <div class="pg-name">13. Quartaccio revamp</div>
+        <div class="pg-sub">residenziale · 2024</div>
+      </div>
+    </div><div class="pg-item">
+      <div class="pg-thumb"><img src="immagini/12-scala/12-scala-anteprima.jpg" alt="Estensione scala"></div>
+      <div class="pg-info">
+        <div class="pg-name">12. Estensione scala</div>
+        <div class="pg-sub">interni · 2024</div>
+      </div>
+    </div><div class="pg-item">
+      <div class="pg-thumb"><img src="immagini/11-treasure/11-treasure-anteprima.jpg" alt="The Treasure Map"></div>
+      <div class="pg-info">
+        <div class="pg-name">11. The Treasure Map</div>
+        <div class="pg-sub">padiglione · 2024</div>
+      </div>
+    </div><div class="pg-item">
+      <div class="pg-thumb"><img src="immagini/10-ongrowing/10-ongrowing-anteprima.jpg" alt="Ongrowing pavillion"></div>
+      <div class="pg-info">
+        <div class="pg-name">10. Ongrowing pavillion</div>
+        <div class="pg-sub">padiglione · 2024</div>
+      </div>
+    </div><div class="pg-item">
+      <div class="pg-thumb"><img src="immagini/09-landesgarten/09-landesgarten-anteprima.jpg" alt="Pavillion Landesgartenschau"></div>
+      <div class="pg-info">
+        <div class="pg-name">9. Pavillion Landesgartenschau</div>
+        <div class="pg-sub">padiglione · 2023</div>
+      </div>
+    </div><div class="pg-item">
+      <div class="pg-thumb"><img src="immagini/08-urbansoil/08-urbansoil-anteprima.jpg" alt="Living with urban soil"></div>
+      <div class="pg-info">
+        <div class="pg-name">8. Living with urban soil</div>
+        <div class="pg-sub">padiglione · 2023</div>
+      </div>
+    </div><div class="pg-item">
+      <div class="pg-thumb"><img src="immagini/07-centro/07-centro-anteprima.jpg" alt="C_entro"></div>
+      <div class="pg-info">
+        <div class="pg-name">7. C_entro</div>
+        <div class="pg-sub">allestimento · 2023</div>
+      </div>
+    </div><div class="pg-item">
+      <div class="pg-thumb"><img src="immagini/06-rimboom/06-rimboom-anteprima.jpg" alt="Rimboom"></div>
+      <div class="pg-info">
+        <div class="pg-name">6. Rimboom</div>
+        <div class="pg-sub">spazio pubblico · 2023</div>
+      </div>
+    </div><div class="pg-item">
+      <div class="pg-thumb"><img src="immagini/05-ricerca/05-ricerca-anteprima.jpg" alt="Centro di ricerca"></div>
+      <div class="pg-info">
+        <div class="pg-name">5. Centro di ricerca</div>
+        <div class="pg-sub">esposizione + residenziale · 2023</div>
+      </div>
+    </div><div class="pg-item">
+      <div class="pg-thumb"><img src="immagini/04-akaflieg/04-akaflieg-anteprima.jpg" alt="Akaflieg Student Halle"></div>
+      <div class="pg-info">
+        <div class="pg-name">4. Akaflieg Student Halle</div>
+        <div class="pg-sub">spazio pubblico · 2022</div>
+      </div>
+    </div><div class="pg-item">
+      <div class="pg-thumb"><img src="immagini/03-piazze/03-piazze-anteprima.jpg" alt="Il sistema delle piazze"></div>
+      <div class="pg-info">
+        <div class="pg-name">3. Il sistema delle piazze</div>
+        <div class="pg-sub">spazio pubblico · 2022</div>
+      </div>
+    </div><div class="pg-item">
+      <div class="pg-thumb"><img src="immagini/02-rionale/02-rionale-anteprima.jpg" alt="Spazio culturale rionale"></div>
+      <div class="pg-info">
+        <div class="pg-name">2. Spazio culturale rionale</div>
+        <div class="pg-sub">esposizione + spazio pubblico · 2021</div>
+      </div>
+    </div><div class="pg-item">
+      <div class="pg-thumb"><img src="immagini/01-quadraro/01-quadraro-anteprima.jpg" alt="Social housing Quadraro"></div>
+      <div class="pg-info">
+        <div class="pg-name">1. Social housing Quadraro</div>
+        <div class="pg-sub">residenziale · 2020</div>
+      </div>
+    </div></div>
+    </div>
+
+    <div id="detail-view" style="display: none;">
+      <div class="detail-back" onclick="showSection(&#39;list&#39;)">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9,1 3,7 9,13"></polyline></svg>
+        Tutti i progetti
+      </div>
+      
+      <div class="schermo-diviso" id="detail-hero-split">
+        <div class="meta-sinistra" id="hero-img-left" onclick="cycleLeftImage()"><span class="img-counter" id="counter-left"></span></div>
+        <div class="meta-destra" id="hero-img-right" onclick="cycleRightImage()"><span class="img-counter" id="counter-right"></span></div>
+      </div>
+
+      <div class="detail-body">
+        <div class="detail-text">
+          <h1 class="detail-title" id="detail-title"></h1>
+          <p class="detail-description" id="detail-desc"></p>
+        </div>
+        <div class="detail-meta" id="detail-meta"></div>
+      </div>
+      <div class="detail-nav">
+        <div class="detail-nav-btn" id="btn-prev" onclick="navigateProject(1)">
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="9,1 3,7 9,13"></polyline></svg>
+          Precedente
+        </div>
+        <div class="detail-nav-btn" id="btn-next" onclick="navigateProject(-1)">
+          Successivo
+          <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="5,1 11,7 5,13"></polyline></svg>
+        </div>
+      </div>
+    </div>
+
+    <div id="profilo-view" class="static-page" style="display: none;">
+      
+      <div class="cv-bio">
+        <p>Nato a Roma nel 2001, studio Architettura. Mi interessa in particolare il rapporto tra spazio urbano e relazioni sociali. Il mio approccio progettuale si fonda sulla coscienza del luogo, dò valore al contesto e alla sua identità. Dedico attenzione alla rappresentazione grafica e alla visualizzazione concettuale e sostengo processi di progettazione partecipativa, che ascoltino attivamente le diverse parti coinvolte nel programma.</p>
+        <p>Dal 2023 partecipo come volontario all'EASA (European Architecture Students Assembly) di cui sono National Contact per l'Italia e per cui sono stato nel 2024 tutor di un workshop di indagine urbana.</p>
+      </div>
+
+      <div class="contact-list">
+        <a href="mailto:info@giovannitelve.it" class="contact-link">
+          <span class="contact-label">Email</span>
+          info@giovannitelve.it
+        </a>
+        <a href="tel:+393297916727" class="contact-link">
+          <span class="contact-label">Telefono</span>
+          +39 3297916727
+        </a>
+        <a href="https://instagram.com/giovannitelve" target="_blank" class="contact-link">
+          <span class="contact-label">Instagram</span>
+          @giovannitelve
+        </a>
+        <a href="https://giovannitelve.it/" target="_blank" class="contact-link">
+          <span class="contact-label">Sito Web</span>
+          giovannitelve.it
+        </a>
+      </div>
+
+      <h2 class="cv-section-title">Esperienze Professionali</h2>
+      
+      <div class="cv-item">
+        <div class="cv-date">nov. 2024 &gt; feb. 2025</div>
+        <div class="cv-content">
+          <strong>Stage di progettazione architettonica</strong>
+          City Meta Lab | Roma - Dubai
+          <span class="cv-desc">Disegno 2D e modellazione 3D, produzione di elaborati grafici e render</span>
+        </div>
+      </div>
+
+      <div class="cv-item">
+        <div class="cv-date">mar. 2024 &gt; ago. 2024</div>
+        <div class="cv-content">
+          <strong>Tutoraggio del workshop "The Treasure Map"</strong>
+          EASA Shanzai | Benidorm, Spagna
+        </div>
+      </div>
+
+      <div class="cv-item">
+        <div class="cv-date">mar. 2023 &gt; lug. 2023</div>
+        <div class="cv-content">
+          <strong>Stage per il concorso Europan 17</strong>
+          SDB Architettura | Roma
+          <span class="cv-desc">Partecipazione nella progettazione urbana, illustrazioni, rendering e collage</span>
+        </div>
+      </div>
+
+      <div class="cv-item">
+        <div class="cv-date">apr. 2022 &gt; apr. 2023</div>
+        <div class="cv-content">
+          <strong>Graphic Designer &amp; Organizzazione mostre/workshop</strong>
+          E23 Startup | Roma
+        </div>
+      </div>
+
+      <h2 class="cv-section-title">Mostre</h2>
+      
+      <div class="cv-item">
+        <div class="cv-date">gen. 2023</div>
+        <div class="cv-content">
+          <strong>"Taccuini" - Mostra personale di disegno</strong>
+          Sinestetica Expo | Roma
+        </div>
+      </div>
+
+      <h2 class="cv-section-title">Formazione</h2>
+
+      <div class="cv-item">
+        <div class="cv-date">2019 &gt; 2025</div>
+        <div class="cv-content">
+          <strong>Laurea Magistrale a ciclo unico (110L)</strong>
+          Sapienza Università di Roma
+        </div>
+      </div>
+
+      <div class="cv-item">
+        <div class="cv-date">ott. 2023 &gt; mar. 2024<br>mar. 2025 &gt; ago. 2025</div>
+        <div class="cv-content">
+          <strong>Erasmus + Ricerca Tesi</strong>
+          Technische Universität München
+        </div>
+      </div>
+
+      <div class="cv-item">
+        <div class="cv-date">ott. 2021 &gt; ago. 2022</div>
+        <div class="cv-content">
+          <strong>Erasmus</strong>
+          Technische Universität Darmstadt
+        </div>
+      </div>
+
+      <div class="cv-item">
+        <div class="cv-date">2014 &gt; 2019</div>
+        <div class="cv-content">
+          <strong>Diploma di Maturità (96/100)</strong>
+          Liceo Scientifico A. Righi, Roma<br>
+          <span class="cv-desc">+ giu. 2017 &gt; set. 2017 trimestre di studio presso Aranmore College, Perth, AU</span>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<script>
+const projects = [
+  {
+    num: 18, imgPreview: "immagini/18-fermacarta/18-fermacarta-anteprima.jpg", slug: "18-fermacarta", name: "Fermacarta", year: 2026, status: "concorso",
+    type: "padiglione", category: "oggetti",
+    ente: "Festival di Microarchitettura", location: "Fermignano (PU)",
+    collab: "Behar Shoti, Elena Stefani, Valeria De Filippis, Cesare Sartori",
+    desc: "Sulla sponda del Metauro, dove il fiume si infrange sulla diga e il paesaggio urbano di Fermignano si offre come sequenza di stratificazioni storiche — il ponte romano, la torre medievale, l'ex Lanificio Carotti —, Fermacarta è un padiglione lineare in legno che si definisce come dispositivo di sosta e orientamento. La struttura, modulare ed essenziale, si compone di cinque cavalletti triangolari che reggono una copertura a lamelle filtranti, uno stenditoio con teli di cotone grezzo mossi dal vento e un basamento zavorrato con pietre raccolte direttamente dal letto del fiume. Il gesto dell'asciugatura — che ha caratterizzato questa sponda prima con la carta, poi con i tessuti — diventa elemento spaziale: i teli filtrano luce e vento, instaurando una relazione diretta con l'acqua che scorre pochi metri più in basso. L'installazione funziona a due scale: dalla distanza è una presenza orizzontale sulla riva, riconoscibile dal ritmo delle lamelle e dal bianco dei teli; da vicino è uno spazio da abitare con i sensi, in cui memoria produttiva e paesaggio fluviale coesistono e si rendono nuovamente percepibili.", award: ""
+  },
+  {
+    num: 17, imgPreview: "immagini/17-rondo/17-rondo-anteprima.jpg", slug: "17-rondo", name: "Rondò", year: 2026, status: "concorso",
+    type: "spazio pubblico", category: "edifici",
+    ente: "Comune di Piedimonte San Germano", location: "Piedimonte San Germano (FR)",
+    collab: "Pierfrancesco Lisi, Gaia Solazzo, Anahita Rahimi Vishteh, Sofia Salvicchi, Marta Volpe",
+    desc: "Il progetto per la nuova piazza di Piedimonte San Germano nasce dalla volontà di ricucire il tessuto urbano attraverso un gesto radicale di riuso, memoria e movimento. Il ricco territorio nel quale il paese si trova è caratterizzato da storia, natura e dalla presenza dell'insediamento produttivo Ex Fiat: la Piazza del Municipio è il crocevia di questa identità stratificata. Lo stato di fatto è segnato dall'incomunicabilità della superficie pubblica con il contesto circostante, stretta da una viabilità poco funzionale che nega la possibilità di connettere i fronti. Il progetto massimizza lo spazio pubblico per traguardare la montagna e la pianura agricola, attivare i fronti commerciali, potenziare il luogo della chiesa e suggerire il percorso verso il centro storico. L'approccio è ecologico e circolare: la pavimentazione esistente viene rimossa e riposata secondo un nuovo schema che integra la pietra locale. La grande fontana centrale viene ampliata, moltiplicando la superficie acquatica per contrastare l'isola di calore e sottolineando il fulcro gravitazionale attorno al quale si sviluppano le dinamiche sociali. La vegetazione locale integra il sistema espandendone i confini, creando un paesaggio urbano continuo, accessibile e senza barriere.", award: ""
+  },
+  {
+    num: 16, imgPreview: "immagini/16-tuscolano/16-tuscolano-anteprima.jpg", slug: "16-tuscolano", name: "Riabitare il Tuscolano", year: 2025, status: "universitario",
+    type: "residenziale", category: "edifici",
+    ente: "Sapienza Università di Roma", client: "Barbara Pizzo, Dina Nencini, Maria Clara Ghia", location: "Roma",
+    collab: "",
+    desc: "Nel contesto denso e stratificato del quartiere INA-Casa Tuscolano II, progettato nel secondo dopoguerra da Muratori e De Renzi, il progetto di riuso propone il frazionamento di alcuni appartamenti in unità più piccole ed adeguate alle esigenze abitative attuali, accompagnando questo intervento con una serie di inserimenti puntuali di spazi semipubblici nel quartiere. La densificazione è sostenuta da servizi di carattere pubblico o collettivo, raggiungendo una densificazione controllata senza consumo di suolo o di cubatura: gli interventi sugli appartamenti riguardano il ridisegno delle partizioni interne e l'aggiunta di corpi distributivi esterni leggeri.",
+    award: ""
+  },
+  {
+    num: 15, imgPreview: "immagini/15-wohnen/15-wohnen-anteprima.jpg", slug: "15-wohnen", name: "Alle müssen wohnen", year: 2025, status: "universitario",
+    type: "residenziale", category: "edifici",
+    ente: "Technische Universität München", client: "Anne Kaestle", location: "Monaco di Baviera",
+    collab: "Simon Schlereth, Laura Schieferdecker, Franka Bienstein, Hannah Essigkrug",
+    desc: "Il progetto si posiziona all'interno di Sendlinger Loch, un lotto con un cantiere sospeso, mai costruito perché gli appartamenti progettati erano troppo costosi per l'area che occupavano. Il programma è stato impostato su un'area con abitazioni ad alta densità, comprendente servizi culturali, produttivi e commerciali al piano terra. Attraverso la progettazione di tre tipologie abitative diverse — appartamenti in linea, a ballatoio e duplex — il progetto mantiene una struttura costruttiva semplice per definire appartamenti di diverse dimensioni, rispondendo ad un'esigenza abitativa eterogenea per nuclei familiari da uno a quattro componenti.",
+    award: ""
+  },
+  {
+    num: 14, imgPreview: "immagini/14-carretto/14-carretto-anteprima.jpg", slug: "14-carretto", name: "Carretto espositivo", year: 2025, status: ["realizzato","workshop"],
+    type: "allestimento", category: "oggetti",
+    ente: "EASA", client: "EASA", location: "Nicosia, Cipro",
+    collab: "Alessandra Ledda", desc: "", award: ""
+  },
+  {
+    num: 13, imgPreview: "immagini/13-quartaccio/13-quartaccio-anteprima.jpg", slug: "13-quartaccio", name: "Quartaccio revamp", year: 2024, status: "universitario",
+    type: "residenziale", category: "edifici",
+    ente: "Sapienza Università di Roma", client: "Eliana Cangelli", location: "Quartaccio, Roma",
+    collab: "", desc: "", award: ""
+  },
+  {
+    num: 12, imgPreview: "immagini/12-scala/12-scala-anteprima.jpg", slug: "12-scala", name: "Estensione scala", year: 2024, status: "realizzato",
+    type: "interni", category: "oggetti",
+    client: "Giovanni Telve", location: "Roma",
+    collab: "", desc: "", award: ""
+  },
+  {
+    num: 11, imgPreview: "immagini/11-treasure/11-treasure-anteprima.jpg", slug: "11-treasure", name: "The Treasure Map", year: 2024, status: ["realizzato","workshop"],
+    type: "padiglione", category: "oggetti",
+    ente: "EASA", client: "EASA", location: "Benidorm, Spagna",
+    collab: "Elisa Cordaro — Ana, Angela, Dara, Dea, Kata, Kitty, Klea, Lis, Liv, Mesi, Mykhailo, Natalie, Patricijia, Sam, Sean, Tadijan, Yannis",
+    desc: "L'idea dietro al workshop nasce da una forte curiosità di indagare il singolare contesto della città di Benidorm: uno dei casi più interessanti di urbanizzazione verticale e gestione del flusso stagionale di residenti e visitatori. La divisione in quattro gruppi di lavoro ha permesso di affrontare a fondo la forma della città, le sue diverse densità di frequenza da parte di residenti e turisti, i caratteri definiti di ogni quartiere e la resa grafica e materica dell'indagine. Un attento ascolto del carattere della città tramite diverse modalità di intervista e l'uso delle mappe percettive come strumento di restituzione e investigazione ha permesso di produrre un esito esposto permanentemente nel municipio di Benidorm.<br><br>Foto di Dara Docheva, Katarina Tomic, Lara Ippolito, Vivien Graute.",
+    award: "Esposizione permanente nel comune di Benidorm"
+  },
+  {
+    num: 10, imgPreview: "immagini/10-ongrowing/10-ongrowing-anteprima.jpg", slug: "10-ongrowing", name: "Ongrowing pavillion", year: 2024, status: "universitario",
+    type: "padiglione", category: "edifici",
+    ente: "Technische Universität München", client: "Ferdinand Ludwig", location: "Monaco di Baviera",
+    collab: "Ben Nepomuk Klages",
+    desc: "Il progetto di questo padiglione rientra in un concorso per la permeabilizzazione di un'area nel campus universitario di Garching. La struttura punta a permettere una fruizione degli spazi di riposo e consumo in modo più protetto da sole, pioggia e neve, appoggiandosi ad una superficie in gran parte permeabile e non pavimentata, usando gli alberi come strumento di supporto principale. Il padiglione si inserisce nel contesto di sperimentazione con strutture botaniche della sfera di ricerca del prof. Ludwig, mantenendo un carattere flessibile ed adattabile proprio della natura degli alberi stessi: la struttura non è mai completa e sempre temporanea, e si riduce decostruendosi man mano che gli alberi crescono.",
+    award: ""
+  },
+  {
+    num: 9, imgPreview: "immagini/09-landesgarten/09-landesgarten-anteprima.jpg", slug: "09-landesgarten", name: "Pavillion Landesgartenschau", year: 2023, status: "workshop",
+    type: "padiglione", category: "oggetti",
+    ente: "Technische Universität München", client: "Stephan Birk", location: "Monaco di Baviera",
+    collab: "", desc: "", award: ""
+  },
+  {
+    num: 8, imgPreview: "immagini/08-urbansoil/08-urbansoil-anteprima.jpg", slug: "08-urbansoil", name: "Living with urban soil", year: 2023, status: "workshop",
+    type: "padiglione", category: "oggetti",
+    ente: "Technische Universität München", client: "Fuminori Nousaku", location: "Monaco di Baviera",
+    collab: "Elisa Cordaro", desc: "", award: ""
+  },
+  {
+    num: 7, imgPreview: "immagini/07-centro/07-centro-anteprima.jpg", slug: "07-centro", name: "C_entro", year: 2023, status: ["realizzato","workshop"],
+    type: "allestimento", category: "oggetti",
+    ente: "Bosco Colto", client: "Bosco Colto", location: "Borgo di Santo Pietro, Caltagirone (CT)",
+    collab: "Elisa Cordaro, Carlo Amico, Alice Piciocchi", desc: "", award: ""
+  },
+  {
+    num: 6, imgPreview: "immagini/06-rimboom/06-rimboom-anteprima.jpg", slug: "06-rimboom", name: "Rimboom", year: 2023, status: "concorso",
+    type: "spazio pubblico", category: "edifici",
+    ente: "Europan 17", location: "Rimbo, Svezia",
+    collab: "Fiamma Ficcadenti, Mattia Cerasaro, Daniel Ciotti, Edoardo Ferrari, Nicola Corradetti",
+    desc: "Nel contesto scandinavo del paese di Rimbo, vicino Stoccolma, il progetto mira a costruire un nodo stazione con spazi pubblici e commerciali che permettano un migliore collegamento tra il paese e il territorio e una migliore fruibilità degli spazi di transito intorno all'area della stazione. La strategia progettuale include la rifunzionalizzazione di capannoni industriali presenti sull'asse della ferrovia in collegamento con la stazione, come anche la pedonalizzazione e ridefinizione del disegno a terra della piazza antistante.",
+    award: ""
+  },
+  {
+    num: 5, imgPreview: "immagini/05-ricerca/05-ricerca-anteprima.jpg", slug: "05-ricerca", name: "Centro di ricerca", year: 2023, status: "universitario",
+    type: "esposizione + residenziale", category: "edifici",
+    ente: "Sapienza Università di Roma", client: "Dina Nencini", location: "Siracusa",
+    collab: "", desc: "", award: ""
+  },
+  {
+    num: 4, imgPreview: "immagini/04-akaflieg/04-akaflieg-anteprima.jpg", slug: "04-akaflieg", name: "Akaflieg Student Halle", year: 2022, status: "universitario",
+    type: "spazio pubblico", category: "edifici",
+    ente: "Technische Universität Darmstadt", client: "Johanna Meyer-Grohbrügge", location: "Darmstadt, Germania",
+    collab: "", desc: "", award: ""
+  },
+  {
+    num: 3, imgPreview: "immagini/03-piazze/03-piazze-anteprima.jpg", slug: "03-piazze", name: "Il sistema delle piazze", year: 2022, status: "workshop",
+    type: "spazio pubblico", category: "edifici",
+    ente: "Sapienza Università di Roma", client: "Orazio Carpenzano", location: "Oriolo Romano (VT)",
+    collab: "Fabrizio Marzilli, Claudia Ricciardi, Jacopo Di Biase, Chiara Pucci, Angela Girardo",
+    desc: "Dopo un'analisi sul campo dei sistemi di spazi aperti di Oriolo Romano, il seminario interpreta e offre una proposta alternativa al presente sviluppo urbano del paese. Il progetto ambisce a ricucire i tessuti urbani superando il limite della via Claudia, attraverso un'attenzione particolare al ruolo del dislivello tra una metà e l'altra del centro storico del paese. Un sistema di percorsi a terra, strutture leggere usate come landmark e la ridefinizione della mobilità urbana permettono di riconnettere i principali ambienti pubblici storici con quelli più frequentati dell'insediamento recente.",
+    award: "Primo posto"
+  },
+  {
+    num: 2, imgPreview: "immagini/02-rionale/02-rionale-anteprima.jpg", slug: "02-rionale", name: "Spazio culturale rionale", year: 2021, status: "universitario",
+    type: "esposizione + spazio pubblico", category: "edifici",
+    ente: "Sapienza Università di Roma", client: "Anna Giovannelli", location: "Roma",
+    collab: "",
+    desc: "Il progetto si pone come un edificio pubblico a servizio del complesso monumentale Angelo Mai nel Rione Monti. I temi approfonditi sono il linguaggio dell'inserimento nel contesto storico, esplicitato nei prospetti verso la strada e il cortile, insieme al dialogo tra spazi di uso collettivo — laboratori e biblioteca — con spazi di carattere pubblico. Il carattere degli isolati di Monti, con un rapporto con la strada netto e definito, genera un forte contrasto tra la facciata esterna chiusa e l'interno aperto verso il cortile tramite svuotamenti di volume. Il piano terra, quasi pubblico, ospita lo spazio espositivo, la libreria e la caffetteria.",
+    award: ""
+  },
+  {
+    num: 1, imgPreview: "immagini/01-quadraro/01-quadraro-anteprima.jpg", slug: "01-quadraro", name: "Social housing Quadraro", year: 2020, status: "universitario",
+    type: "residenziale", category: "edifici",
+    ente: "Sapienza Università di Roma", client: "Fabrizio Toppetti", location: "Roma",
+    collab: "",
+    desc: "Inserendosi in un lotto che rappresenta uno dei margini del quartiere Quadraro, il progetto si pone come ricucitura di un importante vuoto urbano attraverso la definizione di corpi abitativi e spazi pubblici urbani. Una linea spezzata di edifici a ballatoio divide il lotto in uno spazio urbano più aperto al dialogo con il contesto a sud e uno più riservato a nord. L'arredo urbano, distinto tra spazi di seduta e pocket parks, disegna un gradiente ampio di tipologie di spazio, dall'ambito quasi domestico fino ad un carattere di piazza.",
+    award: ""
+  }
+];
+
+const statusLabel = { "realizzato":"realizzato", "concorso":"concorso", "universitario":"universitario", "workshop":"workshop" };
+
+// Filtri preimpostati su 'all', e in caso di multiple option usiamo array (come introdotto precedentemente per supportarlo nativamente)
+let filters = { status: ["all"], category: "all", year: "all", gruppo: "all" };
+let currentView = 'list';
+let currentIdx = 0;
+
+let activeLeftImgIdx = 0;
+let activeRightImgIdx = 0;
+
+function getFiltered() {
+  return projects.filter(p => {
+    const pStatuses = Array.isArray(p.status) ? p.status : [p.status];
+    const statusMatch = filters.status.includes('all') || filters.status.some(f => pStatuses.includes(f));
+    const categoryMatch = filters.category === 'all' || p.category === filters.category;
+    const yearMatch = filters.year === 'all' || String(p.year) === filters.year;
+    const isGruppo = p.collab && p.collab.trim() !== '';
+    const gruppoMatch = filters.gruppo === 'all' || 
+      (filters.gruppo === 'gruppo' && isGruppo) || 
+      (filters.gruppo === 'personale' && !isGruppo);
+    return statusMatch && categoryMatch && yearMatch && gruppoMatch;
+  });
+}
+
+function updateCounts() {
+  ['realizzato','concorso','universitario','workshop'].forEach(k => {
+    const el = document.getElementById('cnt-'+k);
+    if (el) el.textContent = projects.filter(p => {
+      const ps = Array.isArray(p.status) ? p.status : [p.status];
+      return ps.includes(k);
+    }).length;
+  });
+  ['edifici','oggetti'].forEach(k => {
+    const el = document.getElementById('cnt-'+k);
+    if (el) el.textContent = projects.filter(p => p.category === k).length;
+  });
+  [2020,2021,2022,2023,2024,2025,2026].forEach(y => {
+    const el = document.getElementById('cnt-'+y);
+    if (el) el.textContent = projects.filter(p => p.year === y).length;
+  });
+  const cntPersonale = document.getElementById('cnt-personale');
+  const cntGruppo = document.getElementById('cnt-gruppo');
+  if (cntPersonale) cntPersonale.textContent = projects.filter(p => !p.collab || p.collab.trim() === '').length;
+  if (cntGruppo) cntGruppo.textContent = projects.filter(p => p.collab && p.collab.trim() !== '').length;
+}
+
+function renderList() {
+  const filtered = getFiltered();
+  const listEl = document.getElementById('projects-list');
+  const hoverPreview = document.getElementById('hover-preview');
+  
+  listEl.innerHTML = '';
+  filtered.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'proj-item';
+    
+    let extraInfo = p.location ? p.location : (p.ente ? p.ente : '');
+    if (filters.gruppo === 'gruppo') {
+      extraInfo = extraInfo.replace('Piedimonte San Germano', 'Piedimonte');
+    }
+
+    // Colonna destra contestuale per filtro singolo attivo
+    const pStatuses = Array.isArray(p.status) ? p.status : [p.status];
+    const filtroSingolo = filters.status.length === 1 && filters.status[0] !== 'all' ? filters.status[0] : null;
+    let statusCol = statusLabel[pStatuses[0]] || pStatuses[0];
+
+    if (filtroSingolo === 'universitario' && pStatuses.includes('universitario')) {
+      const enteBreve = p.ente ? p.ente
+        .replace('Sapienza Università di Roma', 'Sapienza')
+        .replace('Technische Universität München', 'TUM')
+        .replace('Technische Universität Darmstadt', 'TU Darmstadt') : '';
+      const prof = p.client || '';
+      statusCol = [enteBreve, prof].filter(Boolean).join(' · ');
+    } else if (filtroSingolo === 'workshop' && pStatuses.includes('workshop')) {
+      const workshopInfo = { 3: 'Sapienza Università di Roma', 7: 'Bosco Colto', 8: 'TUM', 9: 'TUM', 11: 'EASA Shanzai', 14: 'SESAM Identity' };
+      statusCol = workshopInfo[p.num] || p.ente || '';
+    } else if (filtroSingolo === 'concorso' && pStatuses.includes('concorso')) {
+      const concorsoInfo = { 17: 'concorso pubblico', 18: 'festival microarchitettura', 6: 'Europan 17' };
+      statusCol = concorsoInfo[p.num] || p.ente || '';
+    } else if (filtroSingolo === 'realizzato' && pStatuses.includes('realizzato')) {
+      const realizzatoInfo = { 7: 'Bosco Colto', 11: 'EASA Shanzai', 12: 'progetto personale', 14: 'SESAM Identity' };
+      statusCol = realizzatoInfo[p.num] || 'realizzato';
+    } else if (!filtroSingolo) {
+      // Progetti realizzati con natura di workshop: mostrano "workshop" o "progetto personale"
+      const overrideLabel = { 7: 'workshop', 11: 'workshop', 12: 'progetto personale', 14: 'workshop' };
+      if (pStatuses.includes('realizzato') && overrideLabel[p.num]) {
+        statusCol = overrideLabel[p.num];
+      }
+    }
+
+    // Filtro gruppo attivo: colonna status mostra collaboratori
+    if (filters.gruppo === 'gruppo' && p.collab) {
+      statusCol = 'con ' + p.collab;
+    }
+    
+    row.innerHTML = `
+      <div class="pi-name">
+        <span class="pi-num">${String(p.num).padStart(2,'0')}.</span> 
+        <span class="pi-title">${p.name}</span>
+      </div>
+      <div class="pi-type">${p.type}</div>
+      <div class="pi-extra">${extraInfo}</div>
+      <div class="pi-status" title="${filters.gruppo === 'gruppo' && p.collab ? p.collab : ''}" style="${filters.gruppo === 'gruppo' && p.collab ? 'text-align:left;overflow:hidden;text-overflow:ellipsis;' : ''}">${statusCol}</div>
+      <div class="pi-year">${p.year}</div>
+    `;
+    
+    const coverImg = p.imgPreview || '';
+    
+    if (coverImg) {
+      row.addEventListener('mouseenter', () => {
+        hoverPreview.innerHTML = `<img src="${coverImg}" alt="Anteprima">`;
+        hoverPreview.style.display = 'block';
+      });
+      
+      row.addEventListener('mouseleave', () => {
+        hoverPreview.style.display = 'none';
+        hoverPreview.innerHTML = '';
+      });
+      
+      row.addEventListener('mousemove', (e) => {
+        const pw = 340;
+        const ph = Math.round(340 * 3 / 4); // aspect-ratio 4/3
+        const margin = 15;
+        let x = e.clientX + margin;
+        let y = e.clientY + margin;
+        if (x + pw > window.innerWidth) x = e.clientX - pw - margin;
+        if (y + ph > window.innerHeight) y = e.clientY - ph - margin;
+        hoverPreview.style.left = x + 'px';
+        hoverPreview.style.top = y + 'px';
+      });
+    }
+
+    row.addEventListener('click', () => {
+      hoverPreview.style.display = 'none'; 
+      openDetail(projects.indexOf(p));
+    });
+    listEl.appendChild(row);
+  });
+
+  const gridEl = document.getElementById('projects-grid');
+  gridEl.innerHTML = '';
+  filtered.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'pg-item';
+    
+    const coverImg = p.imgPreview || '';
+    
+    card.innerHTML = `
+      <div class="pg-thumb">${coverImg ? `<img src="${coverImg}" alt="${p.name}">` : 'Foto'}</div>
+      <div class="pg-info">
+        <div class="pg-name">${p.num}. ${p.name}</div>
+        <div class="pg-sub">${p.type} · ${p.year}</div>
+      </div>
+    `;
+    card.addEventListener('click', () => openDetail(projects.indexOf(p)));
+    gridEl.appendChild(card);
+  });
+}
+
+function setView(v) {
+  currentView = v;
+  document.getElementById('btn-list').classList.toggle('active', v==='list');
+  document.getElementById('btn-grid').classList.toggle('active', v==='grid');
+  document.getElementById('projects-list').style.display = v==='list' ? 'flex' : 'none';
+  document.getElementById('projects-grid').style.display = v==='grid' ? 'grid' : 'none';
+}
+
+function showSection(sectionId) {
+  document.getElementById('list-view').style.display = 'none';
+  document.getElementById('detail-view').style.display = 'none';
+  document.getElementById('profilo-view').style.display = 'none';
+
+  const sidebar = document.querySelector('.sidebar');
+  if (sectionId === 'list') {
+    sidebar.style.display = '';
+    document.getElementById('list-view').style.display = 'block';
+    renderList(); 
+  } else {
+    sidebar.style.display = 'none';
+  }
+
+  if (sectionId === 'profilo') {
+    document.getElementById('profilo-view').style.display = 'block';
+  }
+  
+  window.scrollTo(0,0);
+}
+
+function toggleMain() {
+  if (document.getElementById('profilo-view').style.display === 'block') {
+    showSection('list');
+  } else {
+    showSection('profilo');
+  }
+}
+
+function openDetail(idx) {
+  currentIdx = idx;
+  const p = projects[idx];
+
+  activeLeftImgIdx = 0;
+  activeRightImgIdx = 0;
+
+  showSection('detail');
+  document.getElementById('detail-view').style.display = 'block';
+
+  document.getElementById('detail-title').textContent = `${String(p.num).padStart(2,'0')}. ${p.name}`.toUpperCase();
+  document.getElementById('detail-desc').textContent = p.desc || '';
+
+  loadProjectImages(p).then(() => renderSplitImages(p));
+
+  const meta = [];
+  
+  let enteKey = 'Stato';
+  let enteVal = statusLabel[p.status] || p.status;
+
+  if (p.status === 'universitario' || p.status === 'tesi') {
+    enteKey = 'Università';
+    enteVal = p.ente || 'Sapienza Università di Roma';
+  } else if (p.status === 'workshop') {
+    enteKey = 'Workshop';
+    enteVal = p.ente || 'Workshop';
+  } else if (p.status === 'concorso') {
+    enteKey = 'Concorso';
+    enteVal = p.ente || 'Concorso';
+  } else if (p.status === 'realizzato') {
+    enteKey = 'Stato';
+    enteVal = 'Realizzato';
+  }
+
+  meta.push({ key: enteKey, val: enteVal });
+  
+  if (p.location) {
+    meta.push({ key: 'Luogo', val: p.location });
+  }
+
+  let clientLabel = 'Cliente';
+  const professoresse = ['Barbara Pizzo', 'Dina Nencini', 'Anne Kaestle', 'Eliana Cangelli', 'Johanna Meyer-Grohbrügge', 'Anna Giovannelli', 'Maria Clara Ghia'];
+  const tutteDonne = p.client && p.client.split(',').map(s => s.trim()).every(nome => professoresse.includes(nome));
+  const almeDonna = professoresse.some(nome => p.client && p.client.includes(nome));
+  if (p.status === 'universitario' || p.status === 'tesi') {
+    if (p.client && p.client.includes('Barbara Pizzo') && p.client.includes('Dina Nencini')) clientLabel = 'Relatrici';
+    else if (tutteDonne && p.client && p.client.includes(',')) clientLabel = 'Professoresse';
+    else if (almeDonna) clientLabel = 'Professoressa';
+    else clientLabel = 'Professore';
+  }
+  else if (p.status === 'workshop') clientLabel = 'Tutor';
+  else if (p.status === 'concorso') clientLabel = 'Ente Banditore';
+  
+  if (p.client) {
+    meta.push({ key: clientLabel, val: p.client });
+  }
+
+  let html = `<div class="meta-row" style="padding-top: 0; padding-bottom: 24px; border-bottom: none;"><div class="meta-val" style="font-size: 16px; font-weight: 500;">${p.year}</div></div>`;
+  
+  html += meta.map(m => `<div class="meta-row"><div class="meta-key">${m.key}</div><div class="meta-val">${m.val}</div></div>`).join('');
+  
+  if (p.award) html += `<div class="meta-row"><div class="meta-key">Riconoscimento</div><div class="meta-val"><span class="meta-award">${p.award}</span></div></div>`;
+  if (p.collab) html += `<div class="meta-collab"><div class="meta-key" style="margin-bottom:6px">Con</div>${p.collab}</div>`;
+  
+  document.getElementById('detail-meta').innerHTML = html;
+
+  document.getElementById('btn-prev').style.visibility = idx < projects.length - 1 ? 'visible' : 'hidden';
+  document.getElementById('btn-next').style.visibility = idx > 0 ? 'visible' : 'hidden';
+
+  window.scrollTo(0,0);
+}
+
+// Prova se un file esiste tramite fetch HEAD (funziona per jpg e mp4)
+// Genera la lista di media per un lato (foto o disegno) fino a max 10
+// Non fa probing: restituisce tutti i path possibili, il rendering gestisce onerror
+function buildMediaList(base, slug, side) {
+  const list = [];
+  for (let i = 1; i <= 10; i++) {
+    const jpg = `${base}/${slug}-${side}-${i}.jpg`;
+    const mp4 = `${base}/${slug}-${side}-${i}.mp4`;
+    // Per i jpg usiamo type 'img', per mp4 'video'
+    // Aggiungiamo entrambi come candidati: il rendering prova jpg, se fallisce prova mp4
+    list.push({ src: jpg, srcMp4: mp4, type: 'img', index: i });
+  }
+  return list;
+}
+
+// Carica i media: prova ogni slot jpg con Image(), se fallisce prova mp4
+function loadProjectImages(p) {
+  if (p._loaded) return Promise.resolve();
+  const slug = p.slug;
+  const base = `immagini/${slug}`;
+
+  function probeSlot(i, side) {
+    return new Promise(resolve => {
+      const jpg = `${base}/${slug}-${side}-${i}.jpg`;
+      const mp4 = `${base}/${slug}-${side}-${i}.mp4`;
+      const img = new Image();
+      img.onload  = () => resolve({ src: jpg, type: 'img' });
+      img.onerror = () => {
+        // jpg non trovato, prova mp4
+        const v = document.createElement('video');
+        let done = false;
+        const ok   = () => { if (!done) { done = true; resolve({ src: mp4, type: 'video' }); } };
+        const fail = () => { if (!done) { done = true; resolve(null); } };
+        v.onloadedmetadata = ok;
+        v.onerror = fail;
+        v.preload = 'metadata';
+        v.src = mp4;
+        // timeout breve: su file:// i video mancanti non sempre sparano onerror
+        setTimeout(fail, 1500);
+      };
+      img.src = jpg;
+    });
+  }
+
+  // Carichiamo tutti gli slot in parallelo per entrambi i lati
+  const limit = slug === '16-tuscolano' ? 30 : slug === '15-wohnen' ? 20 : slug === '11-treasure' ? 15 : 10;
+  const fotoPromises    = Array.from({length: limit}, (_, i) => probeSlot(i + 1, 'foto'));
+  const disegnoPromises = Array.from({length: limit}, (_, i) => probeSlot(i + 1, 'disegno'));
+
+  return Promise.all([
+    Promise.all(fotoPromises),
+    Promise.all(disegnoPromises)
+  ]).then(([fotos, disegni]) => {
+    p.imgLeft  = fotos.filter(Boolean);
+    p.imgRight = disegni.filter(Boolean);
+    p._loaded  = true;
+  });
+}
+
+// Aggiorna un lato (left o right) senza ricostruire il DOM — evita il flash bianco
+function updateSide(containerEl, item, altText, idx, total) {
+  if (!item) {
+    containerEl.innerHTML = `<span>${altText}</span>`;
+    return;
+  }
+
+  const needsVideo = item.type === 'video';
+  let media = containerEl.querySelector(needsVideo ? 'video' : 'img');
+  const wrongType = containerEl.querySelector(needsVideo ? 'img' : 'video');
+
+  // Se c'è l'elemento del tipo sbagliato, rimuovilo
+  if (wrongType) wrongType.remove();
+
+  if (!media) {
+    // Prima volta: crea l'elemento
+    if (needsVideo) {
+      media = document.createElement('video');
+      media.autoplay = true;
+      media.muted    = true;
+      media.loop     = true;
+      media.playsInline = true;
+      media.style.cssText = 'width:100%;height:100%;object-fit:contain;display:block;';
+    } else {
+      media = document.createElement('img');
+    }
+    containerEl.insertBefore(media, containerEl.firstChild);
+  }
+
+  // Aggiorna solo src — nessun flash
+  if (needsVideo) {
+    media.src = item.src;
+    media.load();
+    media.play().catch(() => {});
+  } else {
+    media.src = item.src;
+    media.alt = altText;
+  }
+
+  // Aggiorna o crea il contatore
+  let counter = containerEl.querySelector('.img-counter');
+  if (total > 1) {
+    if (!counter) {
+      counter = document.createElement('span');
+      counter.className = 'img-counter';
+      containerEl.appendChild(counter);
+    }
+    counter.textContent = `${idx + 1} / ${total}`;
+  } else if (counter) {
+    counter.remove();
+  }
+}
+
+function renderSplitImages(p) {
+  const leftList  = p.imgLeft  || [];
+  const rightList = p.imgRight || [];
+
+  const leftEl  = document.getElementById('hero-img-left');
+  const rightEl = document.getElementById('hero-img-right');
+
+  updateSide(leftEl,  leftList[activeLeftImgIdx],   `${p.name} - Foto/Render`,     activeLeftImgIdx,  leftList.length);
+  updateSide(rightEl, rightList[activeRightImgIdx],  `${p.name} - Disegno Tecnico`, activeRightImgIdx, rightList.length);
+}
+
+function cycleLeftImage() {
+  const p = projects[currentIdx];
+  const leftList = p.imgLeft || [];
+  if (leftList.length <= 1) return;
+  activeLeftImgIdx = (activeLeftImgIdx + 1) % leftList.length;
+  renderSplitImages(p);
+}
+
+function cycleRightImage() {
+  const p = projects[currentIdx];
+  const rightList = p.imgRight || [];
+  if (rightList.length <= 1) return;
+  activeRightImgIdx = (activeRightImgIdx + 1) % rightList.length;
+  renderSplitImages(p);
+}
+
+function navigateProject(dir) {
+  const next = currentIdx + dir;
+  if (next >= 0 && next < projects.length) openDetail(next);
+}
+
+['status','category','year','gruppo'].forEach(group => {
+  const container = document.getElementById('filter-'+group);
+  if (!container) return;
+  
+  container.querySelectorAll('.filter-opt').forEach(opt => {
+    opt.addEventListener('click', () => {
+      const val = opt.dataset.val;
+
+      // Logica aggiornata per supportare la selezione multipla su Stato, e la deselezione su tutti i filtri.
+      if (group === 'status') {
+         filters.status = filters.status.filter(s => s !== 'all');
+         if (filters.status.includes(val)) {
+           filters.status = filters.status.filter(s => s !== val); // Rimuovi se già attivo (toggle off)
+         } else {
+           filters.status.push(val); // Aggiungi
+         }
+         
+         if (filters.status.length === 0) {
+           filters.status = ['all']; // Torna a vedere tutti i progetti se svuoti la lista
+         }
+         
+         container.querySelectorAll('.filter-opt').forEach(o => {
+           o.classList.toggle('active', filters.status.includes(o.dataset.val));
+         });
+      } 
+      else {
+        if (filters[group] === val) {
+          // Deseleziona se lo stesso filtro è già cliccato
+          filters[group] = 'all';
+          opt.classList.remove('active');
+        } else {
+          // Seleziona il nuovo filtro
+          container.querySelectorAll('.filter-opt').forEach(o => o.classList.remove('active'));
+          opt.classList.add('active');
+          filters[group] = val;
+        }
+      }
+      
+      renderList();
+    });
+  });
+});
+
+/* INIZIALIZZAZIONE DELLA PAGINA */
+updateCounts();
+showSection('list');
+setView('list');
+</script>
+
+</body></html>
