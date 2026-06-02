@@ -1,0 +1,34 @@
+name: Genera manifest immagini
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'immagini/**'
+      - 'genera_manifest.py'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Genera manifest.json
+        run: python genera_manifest.py
+
+      - name: Commit e push manifest.json
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add manifest.json
+          git diff --cached --quiet || git commit -m "chore: aggiorna manifest.json [skip ci]"
+          git push
